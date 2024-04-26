@@ -4,17 +4,17 @@ import crypto from 'node:crypto'
 
 const contactsPath = path.resolve('db', 'contacts.json')
 
-async function listContacts() {
+function writeContacts(contacts) {
+	return fs.writeFile(contactsPath, JSON.stringify(contacts, undefined, 2))
+}
+
+export async function listContacts() {
 	const data = await fs.readFile(contactsPath, { encoding: 'utf-8' })
 
 	return JSON.parse(data)
 }
 
-function writeContacts(contacts) {
-	return fs.writeFile(contactsPath, JSON.stringify(contacts, undefined, 2))
-}
-
-async function addContact(name, email, phone) {
+export async function addContact(name, email, phone) {
 	const contacts = await listContacts()
 
 	const newContact = { name, email, phone, id: crypto.randomUUID() }
@@ -24,7 +24,7 @@ async function addContact(name, email, phone) {
 	return newContact
 }
 
-async function getContactById(contactId) {
+export async function getContactById(contactId) {
 	const contacts = await listContacts()
 
 	const contact = contacts.find(contact => contact.id === contactId)
@@ -36,7 +36,7 @@ async function getContactById(contactId) {
 	return contact
 }
 
-async function removeContact(contactId) {
+export async function removeContact(contactId) {
 	const contacts = await listContacts()
 
 	const index = contacts.findIndex(contact => contact.id === contactId)
@@ -52,4 +52,27 @@ async function removeContact(contactId) {
 	return removedContact
 }
 
-export default { listContacts, getContactById, removeContact, addContact }
+export async function updateContactById(id, newContact) {
+	const contacts = await listContacts()
+
+	const index = contacts.findIndex(contact => contact.id === id)
+
+	if (index === -1) {
+		return null
+	}
+
+	const updatedContact = { id, ...newContact }
+
+	contacts[index] = updatedContact
+	await writeContacts(contacts)
+
+	return updatedContact
+}
+
+// export default {
+// 	addContact,
+// 	listContacts,
+// 	getContactById,
+// 	removeContact,
+// 	updateContactById,
+// }
