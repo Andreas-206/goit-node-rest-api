@@ -28,9 +28,8 @@ export const deleteContact = wrapAsync(async (req, res) => {
 	const result = await removeContact(id)
 	if (!result) {
 		throw HttpError(404)
-
-		res.json(result)
 	}
+	res.json(result)
 })
 
 export const createContact = wrapAsync(async (req, res) => {
@@ -40,10 +39,22 @@ export const createContact = wrapAsync(async (req, res) => {
 
 export const updateContact = wrapAsync(async (req, res) => {
 	const { id } = req.params
-	const result = await updateContactById(id, req.body)
+	const { name, email, phone } = req.body
+	if (!name && !email && !phone) {
+		return res
+			.status(400)
+			.json({ message: 'Body must have at least one field' })
+	}
+	const existingContact = await getContactById(id)
+	const updatedContact = {
+		id,
+		name: name || existingContact.name,
+		email: email || existingContact.email,
+		phone: phone || existingContact.phone,
+	}
+	const result = await updateContactById(id, updatedContact)
 	if (!result) {
 		throw HttpError(404)
 	}
-
 	res.json(result)
 })

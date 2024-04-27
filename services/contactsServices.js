@@ -68,11 +68,3 @@ export async function updateContactById(id, newContact) {
 
 	return updatedContact
 }
-
-// export default {
-// 	addContact,
-// 	listContacts,
-// 	getContactById,
-// 	removeContact,
-// 	updateContactById,
-// }
