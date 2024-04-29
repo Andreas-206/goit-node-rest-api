@@ -45,8 +45,7 @@ export async function removeContact(contactId) {
 		return null
 	}
 
-	const removedContact = contacts[index]
-	contacts.splice(index, 1)
+	const removedContact = contacts.splice(index, 1)[0]
 	await writeContacts(contacts)
 
 	return removedContact
@@ -61,9 +60,9 @@ export async function updateContactById(id, newContact) {
 		return null
 	}
 
-	const updatedContact = { id, ...newContact }
-
+	const updatedContact = { ...contacts[index], ...newContact }
 	contacts[index] = updatedContact
+
 	await writeContacts(contacts)
 
 	return updatedContact
