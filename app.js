@@ -5,22 +5,6 @@ import contactsRouter from './routes/contactsRouter.js'
 import mongoose from 'mongoose'
 import 'dotenv/config'
 
-const DB_URI = process.env.DB_URI
-
-mongoose.Promise = global.Promise
-async function run() {
-	try {
-		await mongoose.connect(DB_URI)
-
-		console.log('Database connection successful')
-	} catch (error) {
-		console.log(error)
-		process.exit(1)
-	}
-}
-
-run()
-
 const app = express()
 
 app.use(morgan('tiny'))
@@ -38,6 +22,22 @@ app.use((err, req, res, next) => {
 	res.status(status).json({ message })
 })
 
-app.listen(8080, () => {
-	console.log('Server is running. Use our API on port: 8080')
-})
+const uri = process.env.DB_URI
+const port = process.env.PORT
+
+async function run() {
+	try {
+		await mongoose.connect(uri)
+		await mongoose.connection.db.admin().command({ ping: 1 })
+		console.log('Database connection successful')
+
+		app.listen(port, () => {
+			console.log(`Server is running. Use our API on port: ${port}`)
+		})
+	} catch (error) {
+		console.log(error)
+		process.exit(1)
+	}
+}
+
+run()

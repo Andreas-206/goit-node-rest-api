@@ -1,69 +1,31 @@
-import path from 'node:path'
-import * as fs from 'node:fs/promises'
-import crypto from 'node:crypto'
-
-const contactsPath = path.resolve('db', 'contacts.json')
-
-function writeContacts(contacts) {
-	return fs.writeFile(contactsPath, JSON.stringify(contacts, undefined, 2))
-}
+import Contact from '../schemas/contactModel.js'
 
 export async function listContacts() {
-	const data = await fs.readFile(contactsPath, { encoding: 'utf-8' })
-
-	return JSON.parse(data)
+	const contacts = await Contact.find()
+	return contacts
 }
 
 export async function addContact(name, email, phone) {
-	const contacts = await listContacts()
-
-	const newContact = { name, email, phone, id: crypto.randomUUID() }
-	contacts.push(newContact)
-	await writeContacts(contacts)
-
+	const newContact = await Contact.create({ name, email, phone })
 	return newContact
 }
 
 export async function getContactById(contactId) {
-	const contacts = await listContacts()
-
-	const contact = contacts.find(contact => contact.id === contactId)
-
-	if (typeof contact === 'undefined') {
-		return null
-	}
-
+	const contact = await Contact.findById(contactId)
 	return contact
 }
 
 export async function removeContact(contactId) {
-	const contacts = await listContacts()
-
-	const index = contacts.findIndex(contact => contact.id === contactId)
-
-	if (index === -1) {
-		return null
-	}
-
-	const removedContact = contacts.splice(index, 1)[0]
-	await writeContacts(contacts)
-
-	return removedContact
+	const result = await Contact.findByIdAndDelete({ _id: contactId })
+	return result
 }
 
-export async function updateContactById(id, newContact) {
-	const contacts = await listContacts()
+export async function updateContactById(contactId, newContact) {
+	const result = await Contact.findByIdAndUpdate(
+		{ _id: contactId },
+		newContact,
+		{ new: true }
+	)
 
-	const index = contacts.findIndex(contact => contact.id === id)
-
-	if (index === -1) {
-		return null
-	}
-
-	const updatedContact = { ...contacts[index], ...newContact }
-	contacts[index] = updatedContact
-
-	await writeContacts(contacts)
-
-	return updatedContact
+	return result
 }

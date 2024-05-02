@@ -64,3 +64,15 @@ export const updateContact = async (req, res, next) => {
 		next(error.status ? error : {})
 	}
 }
+
+export const updateStatusContact = async (req, res, next) => {
+	try {
+		const { id } = req.params
+		const result = await updateContactById(id, req.body)
+		if (!result) throw HttpError(404)
+
+		res.json(result)
+	} catch (error) {
+		next(error.status ? error : {})
+	}
+}
