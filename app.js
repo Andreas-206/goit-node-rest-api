@@ -7,13 +7,15 @@ import 'dotenv/config'
 
 const DB_URI = process.env.DB_URI
 
+mongoose.Promise = global.Promise
 async function run() {
 	try {
 		await mongoose.connect(DB_URI)
 
-		console.log('DB connected')
+		console.log('Database connection successful')
 	} catch (error) {
 		console.log(error)
+		process.exit(1)
 	}
 }
 
