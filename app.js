@@ -27,8 +27,10 @@ const port = process.env.PORT
 
 async function run() {
 	try {
-		await mongoose.connect(uri)
-		await mongoose.connection.db.admin().command({ ping: 1 })
+		await mongoose
+			.connect(uri, { promiseLibrary: global.Promise })
+			.connection.db.admin()
+			.command({ ping: 1 })
 		console.log('Database connection successful')
 
 		app.listen(port, () => {
