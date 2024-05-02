@@ -3,6 +3,21 @@ import morgan from 'morgan'
 import cors from 'cors'
 import contactsRouter from './routes/contactsRouter.js'
 import mongoose from 'mongoose'
+import 'dotenv/config'
+
+const DB_URI = process.env.DB_URI
+
+async function run() {
+	try {
+		await mongoose.connect(DB_URI)
+
+		console.log('DB connected')
+	} catch (error) {
+		console.log(error)
+	}
+}
+
+run()
 
 const app = express()
 
