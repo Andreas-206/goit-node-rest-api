@@ -1,56 +1,78 @@
 import HttpError from '../helpers/HttpError.js'
-// import {
-// 	listContacts,
-// 	addContact,
-// 	getContactById,
-// 	removeContact,
-// 	updateContactById,
-// } from '../services/contactsServices.js'
-import Contact from '../schemas/contactModel.js'
+import {
+	listContacts,
+	addContact,
+	getContactById,
+	removeContact,
+	updateContactById,
+} from '../services/contactsServices.js'
 
 export const getAllContacts = async (req, res, next) => {
-	const result = await Contact.find()
-	res.json(result)
+	try {
+		const result = await listContacts()
+		res.json(result)
+	} catch (error) {
+		next({})
+	}
 }
 
 export const getOneContact = async (req, res, next) => {
-	const { id } = req.params
-	const result = await Contact.findOne(id)
-	if (!result) throw HttpError(404)
+	try {
+		const { id } = req.params
+		const result = await getContactById(id)
+		if (!result) throw HttpError(404)
 
-	res.json(result)
+		res.json(result)
+	} catch (error) {
+		next(error.status ? error : {})
+	}
 }
 
 export const deleteContact = async (req, res, next) => {
-	const { id } = req.params
-	const result = await Contact.findByIdAndDelete(id)
-	if (!result) throw HttpError(404)
-
-	res.json(result)
+	try {
+		const { id } = req.params
+		const result = await removeContact(id)
+		if (!result) throw HttpError(404)
+		res.json(result)
+	} catch (error) {
+		next(error.status ? error : {})
+	}
 }
 
 export const createContact = async (req, res, next) => {
-	const { name, email, phone } = req.body
-	const result = await Contact.create(name, email, phone)
-	res.status(201).json(result)
+	try {
+		const { name, email, phone } = req.body
+		const result = await addContact(name, email, phone)
+		res.status(201).json(result)
+	} catch (error) {
+		next({})
+	}
 }
 
 export const updateContact = async (req, res, next) => {
-	if (Object.keys(req.body).length === 0)
-		throw HttpError(400, 'Body must have at least one field')
+	try {
+		if (Object.keys(req.body).length === 0)
+			throw HttpError(400, 'Body must have at least one field')
 
-	const { id } = req.params
-	const result = await Contact.findByIdAndUpdate(id, req.body, { new: true })
+		const { id } = req.params
+		const result = await updateContactById(id, req.body)
 
-	if (!result) throw HttpError(404)
+		if (!result) throw HttpError(404)
 
-	res.json(result)
+		res.json(result)
+	} catch (error) {
+		next(error.status ? error : {})
+	}
 }
 
 export const updateStatusContact = async (req, res, next) => {
-	const { id } = req.params
-	const result = await Contact.findByIdAndUpdate(id, req.body, { new: true })
-	if (!result) throw HttpError(404)
+	try {
+		const { id } = req.params
+		const result = await updateContactById(id, req.body)
+		if (!result) throw HttpError(404)
 
-	res.json(result)
+		res.json(result)
+	} catch (error) {
+		next(error.status ? error : {})
+	}
 }
