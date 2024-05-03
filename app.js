@@ -2,10 +2,9 @@ import express from 'express'
 import morgan from 'morgan'
 import cors from 'cors'
 import contactsRouter from './routes/contactsRouter.js'
-import mongoose from 'mongoose'
 import 'dotenv/config'
 
-const app = express()
+export const app = express()
 
 app.use(morgan('tiny'))
 app.use(cors())
@@ -21,25 +20,3 @@ app.use((err, req, res, next) => {
 	const { status = 500, message = 'Server error' } = err
 	res.status(status).json({ message })
 })
-
-const uri = process.env.DB_URI
-const port = process.env.PORT
-
-async function run() {
-	try {
-		await mongoose
-			.connect(uri, { promiseLibrary: global.Promise })
-			.connection.db.admin()
-			.command({ ping: 1 })
-		console.log('Database connection successful')
-
-		app.listen(port, () => {
-			console.log(`Server is running. Use our API on port: ${port}`)
-		})
-	} catch (error) {
-		console.log(error)
-		process.exit(1)
-	}
-}
-
-run()
