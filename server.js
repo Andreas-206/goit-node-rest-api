@@ -5,18 +5,14 @@ import 'dotenv/config'
 const uri = process.env.DB_URI
 const port = process.env.PORT || 8080
 
-async function run() {
-	try {
-		await mongoose.connect(uri)
-		console.log('Database connection successful')
-
+mongoose
+	.connect(uri)
+	.then(() => {
 		app.listen(port, () => {
-			console.log(`Server is running. Use our API on port: ${port}`)
+			console.log('Database connection successful')
 		})
-	} catch (error) {
+	})
+	.catch(error => {
 		console.log(error.message)
 		process.exit(1)
-	}
-}
-
-run()
+	})
