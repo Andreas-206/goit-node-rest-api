@@ -1,11 +1,4 @@
 import HttpError from '../helpers/HttpError.js'
-// import {
-// 	listContacts,
-// 	addContact,
-// 	getContactById,
-// 	removeContact,
-// 	updateContactById,
-// } from '../services/contactsServices.js'
 import Contact from '../schemas/contactModel.js'
 
 export const getAllContacts = async (req, res, next) => {
