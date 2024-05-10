@@ -1,7 +1,8 @@
 import express from 'express'
 import { register, login } from '../controllers/authControllers.js'
 import validateBody from '../helpers/validateBody.js'
-import { registerSchema, loginSchema } from '../schemas/user.js'
+import registerSchema from '../schemas/user.js'
+import loginSchema from '../schemas/user.js'
 
 const authRouter = express.Router()
 
