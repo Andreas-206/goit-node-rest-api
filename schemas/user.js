@@ -40,4 +40,4 @@ export const loginSchema = Joi.object({
 	password: Joi.string().trim().required().min(6),
 })
 
-export default mongoose.model('user', userSchema)
+export default mongoose.model('User', userSchema)
