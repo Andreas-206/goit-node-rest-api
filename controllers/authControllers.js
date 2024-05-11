@@ -6,14 +6,19 @@ export const register = async (req, res, next) => {
 	const { email, password } = req.body
 	const userExist = await User.findOne({ email })
 	if (userExist !== null) {
-		return res.status(409).send({ message: 'User already registered' })
+		return res.status(409).send({ message: 'Email in use' })
 	}
 
 	const hashPassword = await bcrypt.hash(password, 10)
 	try {
-		await User.create({ email, password: hashPassword })
+		const newUser = await User.create({ email, password: hashPassword })
 
-		res.status(201).send('Register new User.')
+		res.status(201).json({
+			user: {
+				email: newUser.email,
+				subscription: newUser.subscription,
+			},
+		})
 	} catch (error) {
 		next(error)
 	}
@@ -44,7 +49,13 @@ export const login = async (req, res, next) => {
 		)
 		await User.findOneAndUpdate(userExist._id, { token })
 
-		res.status(200).send({ token })
+		res.status(200).json({
+			token,
+			user: {
+				email: userExist.email,
+				subscription: userExist.subscription,
+			},
+		})
 	} catch (error) {
 		next(error)
 	}
