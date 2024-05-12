@@ -1,80 +1,62 @@
 import User from '../schemas/user.js'
+
+import HttpError from '../helpers/HttpError.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-export const register = async (req, res, next) => {
+export const register = async (req, res) => {
 	const { email, password } = req.body
-	const userExist = await User.findOne({ email })
-	if (userExist !== null) {
-		return res.status(409).send({ message: 'Email in use' })
+	const user = await User.findOne({ email })
+	if (user) {
+		throw HttpError(409, 'Email in use')
 	}
 
 	const hashPassword = await bcrypt.hash(password, 10)
-	try {
-		const newUser = await User.create({ email, password: hashPassword })
 
-		res.status(201).json({
-			user: {
-				email: newUser.email,
-				subscription: newUser.subscription,
-			},
-		})
-	} catch (error) {
-		next(error)
-	}
+	const newUser = await User.create({ ...req.body, password: hashPassword })
+	res.status(201).json({
+		user: {
+			email: newUser.email,
+			subscription: newUser.subscription,
+		},
+	})
 }
 
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
 	const { email, password } = req.body
+	const user = await User.findOne({ email })
 
-	try {
-		const userExist = await User.findOne({ email })
-
-		if (userExist === null) {
-			console.log('Email')
-			return res.status(401).send({ message: 'Email or password is incorrect' })
-		}
-
-		const isMatch = await bcrypt.compare(password, userExist.password)
-
-		if (isMatch === false) {
-			console.log('Password')
-			return res.status(401).send({ message: 'Email or password is incorrect' })
-		}
-
-		const token = jwt.sign(
-			{ id: userExist._id, name: userExist.name },
-			process.env.JWT_SECRET,
-			{ expiresIn: '24h' }
-		)
-		await User.findOneAndUpdate(userExist._id, { token })
-
-		res.status(200).json({
-			token,
-			user: {
-				email: userExist.email,
-				subscription: userExist.subscription,
-			},
-		})
-	} catch (error) {
-		next(error)
+	if (!user) {
+		throw HttpError(401, 'Email or password is wrong')
 	}
+	const passwordCompare = await bcrypt.compare(password, user.password)
+	if (!passwordCompare) {
+		throw HttpError(401, 'Email or password is wrong')
+	}
+
+	const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
+		expiresIn: '23h',
+	})
+	await User.findOneAndUpdate(user._id, { token })
+
+	res.status(200).json({
+		token,
+		user: {
+			email,
+			subscription: user.subscription,
+		},
+	})
 }
 
-export const logout = async (req, res, next) => {
-	const { _id } = req.user
-
-	try {
-		await User.findByIdAndUpdate(_id, { token: null })
-
-		res.status(204).end()
-	} catch (error) {
-		next(error)
-	}
-}
-
-export const current = async (req, res, next) => {
+export const current = async (req, res) => {
 	const { email, subscription } = req.user
 
 	res.json({ email, subscription })
+}
+
+export const logout = async (req, res) => {
+	const { _id } = req.user
+	await User.findByIdAndUpdate(_id, { token: '' })
+
+	res.status(204).end()
 }
