@@ -17,8 +17,9 @@ export const getOneContact = async (req, res) => {
 	const { id: owner } = req.user
 	const result = await Contact.find({ _id, owner })
 	if (!result) {
-		throw HttpError(404)
+		HttpError(404)
 	}
+
 	res.json(result)
 }
 
@@ -27,8 +28,9 @@ export const deleteContact = async (req, res) => {
 	const { _id: owner } = req.user
 	const result = await Contact.findOneAndDelete({ _id, owner })
 	if (!result) {
-		throw HttpError(404)
+		HttpError(404)
 	}
+
 	res.json(result)
 }
 
@@ -45,8 +47,9 @@ export const updateContact = async (req, res) => {
 		new: true,
 	})
 	if (!result) {
-		throw HttpError(404)
+		HttpError(404)
 	}
+
 	res.json(result)
 }
 
@@ -57,7 +60,8 @@ export const updateStatusContact = async (req, res) => {
 		new: true,
 	})
 	if (!result) {
-		throw HttpError(404)
+		HttpError(404)
 	}
+
 	res.json(result)
 }

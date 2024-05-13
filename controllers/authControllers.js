@@ -26,11 +26,13 @@ export const login = async (req, res) => {
 	const user = await User.findOne({ email })
 
 	if (!user) {
-		throw HttpError(401, 'Email or password is wrong')
+		HttpError(401, 'Email or password is wrong')
 	}
+
 	const passwordCompare = await bcrypt.compare(password, user.password)
+
 	if (!passwordCompare) {
-		throw HttpError(401, 'Email or password is wrong')
+		HttpError(401, 'Email or password is wrong')
 	}
 
 	const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -67,11 +69,11 @@ export const updateSubscription = async (req, res) => {
 	const user = await User.findByIdAndUpdate(id, { subscription })
 
 	if (!user) {
-		throw HttpError(404)
+		HttpError(404)
 	}
 
 	if (subscription === user.subscription) {
-		throw HttpError(409, 'User already has this subscription')
+		HttpError(409, 'User already has this subscription')
 	}
 
 	res.json({ message: 'Subscription updated successfully' })
