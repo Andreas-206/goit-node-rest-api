@@ -13,7 +13,7 @@ const authorization = async (req, res, next) => {
 	const { JWT_SECRET } = process.env
 
 	try {
-		const { id } = jwt.verify(token, SECRET_KEY)
+		const { id } = jwt.verify(token, JWT_SECRET)
 		const user = await User.findById(id)
 
 		if (!user || !user.token || user.token !== token) {
