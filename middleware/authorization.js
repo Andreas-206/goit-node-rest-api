@@ -1,43 +1,31 @@
 import jwt from 'jsonwebtoken'
 import User from '../schemas/user.js'
+import HttpError from '../helpers/HttpError.js'
 
-function authorization(req, res, next) {
-	const authorizationHeader = req.headers.authorization
-
-	if (typeof authorizationHeader === 'undefined') {
-		return res.status(401).send({ message: 'Not authorized' })
-	}
-
-	const [bearer, token] = authorizationHeader.split(' ', 2)
+const authorization = async (req, res, next) => {
+	const { authorization = '' } = req.headers
+	const [bearer, token] = authorization.split(' ')
 
 	if (bearer !== 'Bearer') {
-		return res.status(401).send({ message: 'Not authorized' })
+		next(HttpError(401))
 	}
 
-	jwt.verify(token, process.env.JWT_SECRET, async (err, decode) => {
-		if (err) {
-			return res.status(401).send({ message: 'Not authorized' })
+	const { JWT_SECRET } = process.env
+
+	try {
+		const { id } = jwt.verify(token, SECRET_KEY)
+		const user = await User.findById(id)
+
+		if (!user || !user.token || user.token !== token) {
+			next(HttpError(401))
 		}
-		try {
-			const user = await User.findById(decode.id)
 
-			if (user === null) {
-				return res.status(401).send({ message: 'Not authorized' })
-			}
+		req.user = user
 
-			if (user.token !== token) {
-				return res.status(401).send({ message: 'Not authorized' })
-			}
-
-			console.log({ decode })
-
-			req.user = user
-
-			next()
-		} catch (error) {
-			next(error)
-		}
-	})
+		next()
+	} catch (error) {
+		next(HttpError(401))
+	}
 }
 
 export default authorization

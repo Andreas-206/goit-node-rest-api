@@ -40,4 +40,11 @@ export const loginSchema = Joi.object({
 	password: Joi.string().trim().required().min(6),
 })
 
+export const updateSubscriptionSchema = Joi.object({
+	subscription: Joi.string()
+		.valid('starter', 'pro', 'business')
+		.only()
+		.required(),
+})
+
 export default mongoose.model('User', userSchema)

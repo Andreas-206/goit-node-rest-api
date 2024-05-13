@@ -1,5 +1,4 @@
 import User from '../schemas/user.js'
-
 import HttpError from '../helpers/HttpError.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -34,7 +33,7 @@ export const login = async (req, res) => {
 		throw HttpError(401, 'Email or password is wrong')
 	}
 
-	const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
+	const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
 		expiresIn: '23h',
 	})
 	await User.findOneAndUpdate(user._id, { token })
@@ -42,7 +41,7 @@ export const login = async (req, res) => {
 	res.status(200).json({
 		token,
 		user: {
-			email,
+			email: user.email,
 			subscription: user.subscription,
 		},
 	})
@@ -56,7 +55,24 @@ export const current = async (req, res) => {
 
 export const logout = async (req, res) => {
 	const { _id } = req.user
-	await User.findByIdAndUpdate(_id, { token: '' })
+	await User.findById(_id, { token: '' })
 
 	res.status(204).end()
+}
+
+export const updateSubscription = async (req, res) => {
+	const { id } = req.user
+	const { subscription } = req.body
+
+	const user = await User.findByIdAndUpdate(id, { subscription })
+
+	if (!user) {
+		throw HttpError(404)
+	}
+
+	if (subscription === user.subscription) {
+		throw HttpError(409, 'User already has this subscription')
+	}
+
+	res.json({ message: 'Subscription updated successfully' })
 }

@@ -15,7 +15,7 @@ export const getAllContacts = async (req, res) => {
 export const getOneContact = async (req, res) => {
 	const { id: _id } = req.params
 	const { id: owner } = req.user
-	const result = await Contact.findOne({ _id, owner })
+	const result = await Contact.find({ _id, owner })
 	if (!result) {
 		throw HttpError(404)
 	}
