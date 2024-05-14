@@ -3,7 +3,7 @@ import { app } from './app.js'
 import 'dotenv/config'
 
 const uri = process.env.DB_URI
-const port = process.env.PORT || 8070
+const port = process.env.PORT || 8030
 
 mongoose
 	.connect(uri)
