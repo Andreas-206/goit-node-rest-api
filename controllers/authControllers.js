@@ -93,3 +93,7 @@ export const updateSubscription = async (req, res, next) => {
 		next(error)
 	}
 }
+
+export const addAvatar = async (req, res, next) => {
+	res.send('Add avatar')
+}
