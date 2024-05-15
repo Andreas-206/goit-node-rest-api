@@ -8,9 +8,11 @@ import {
 } from '../controllers/authControllers.js'
 import validateBody from '../helpers/validateBody.js'
 import validateId from '../helpers/validateId.js'
-import registerSchema from '../schemas/user.js'
-import loginSchema from '../schemas/user.js'
-import updateSubscriptionSchema from '../schemas/user.js'
+import {
+	registerSchema,
+	loginSchema,
+	updateSubscriptionSchema,
+} from '../schemas/usersSchemas.js'
 import authorization from '../middleware/authorization.js'
 
 const authRouter = express.Router()

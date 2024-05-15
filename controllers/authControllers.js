@@ -1,11 +1,11 @@
-import User from '../schemas/user.js'
+import User from '../models/user.js'
 import HttpError from '../helpers/HttpError.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 export const register = async (req, res, next) => {
-	const { email, password } = req.body
 	try {
+		const { email, password } = req.body
 		const user = await User.findOne({ email })
 		if (user) {
 			throw HttpError(409, 'Email in use')
@@ -25,8 +25,8 @@ export const register = async (req, res, next) => {
 }
 
 export const login = async (req, res, next) => {
-	const { email, password } = req.body
 	try {
+		const { email, password } = req.body
 		const user = await User.findOne({ email })
 
 		if (!user) {
