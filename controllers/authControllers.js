@@ -2,6 +2,8 @@ import User from '../models/user.js'
 import HttpError from '../helpers/HttpError.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import fs from 'node:fs/promises'
+import Jimp from 'jimp'
 
 export const register = async (req, res, next) => {
 	try {
@@ -11,8 +13,13 @@ export const register = async (req, res, next) => {
 			throw HttpError(409, 'Email in use')
 		}
 
+		const avatarURL = gravatar.url(email)
 		const hashPassword = await bcrypt.hash(password, 10)
-		const newUser = await User.create({ ...req.body, password: hashPassword })
+		const newUser = await User.create({
+			...req.body,
+			password: hashPassword,
+			avatarURL,
+		})
 		res.status(201).json({
 			user: {
 				email: newUser.email,
@@ -95,5 +102,20 @@ export const updateSubscription = async (req, res, next) => {
 }
 
 export const addAvatar = async (req, res, next) => {
-	res.send('Add avatar')
+	try {
+		const { path: filePath } = req.file
+
+		const image = await Jimp.read(filePath)
+		image.resize(250, 250).write(filePath)
+
+		const resultDir = `public/avatars/${req.file.filename}`
+		await fs.rename(filePath, resultDir)
+
+		const avatarURL = `/avatars/${req.file.filename}`
+		await User.findByIdAndUpdate(req.user.id, { avatarURL })
+
+		res.json({ avatarURL })
+	} catch (error) {
+		next(error)
+	}
 }
