@@ -15,6 +15,7 @@ import {
 	updateSubscriptionSchema,
 } from '../schemas/usersSchemas.js'
 import authorization from '../middleware/authorization.js'
+import upload from '../middleware/upload.js'
 
 const authRouter = express.Router()
 
@@ -29,6 +30,6 @@ authRouter.patch(
 	validateBody(updateSubscriptionSchema),
 	updateSubscription
 )
-authRouter.patch('/avatars', authorization, addAvatar)
+authRouter.patch('/avatars', authorization, upload.single('avatar'), addAvatar)
 
 export default authRouter
