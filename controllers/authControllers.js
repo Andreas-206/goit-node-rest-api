@@ -103,16 +103,17 @@ export const updateSubscription = async (req, res, next) => {
 
 export const addAvatar = async (req, res, next) => {
 	try {
-		const { path: filePath } = req.file
+		const { _id } = req.user
+		const { path: filePath, filename } = req.file
 
 		const image = await Jimp.read(filePath)
 		image.resize(250, 250).write(filePath)
 
-		const resultDir = `public/avatars/${req.file.filename}`
+		const resultDir = `public/avatars/${filename}`
 		await fs.rename(filePath, resultDir)
 
-		const avatarURL = `/avatars/${req.file.filename}`
-		await User.findByIdAndUpdate(req.user.id, { avatarURL })
+		const avatarURL = `/avatars/${filename}`
+		await User.findByIdAndUpdate(_id, { avatarURL })
 
 		res.json({ avatarURL })
 	} catch (error) {
