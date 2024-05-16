@@ -36,7 +36,7 @@ export const login = async (req, res, next) => {
 		const passwordCompare = await bcrypt.compare(password, user.password)
 
 		if (!passwordCompare) {
-			throwHttpError(401, 'Email or password is wrong')
+			throw HttpError(401, 'Email or password is wrong')
 		}
 
 		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -92,8 +92,4 @@ export const updateSubscription = async (req, res, next) => {
 	} catch (error) {
 		next(error)
 	}
-}
-
-export const addAvatar = async (req, res, next) => {
-	res.send('Add avatar')
 }
