@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import fs from 'node:fs/promises'
 import Jimp from 'jimp'
+import gravatar from 'gravatar'
 
 export const register = async (req, res, next) => {
 	try {
@@ -105,6 +106,10 @@ export const addAvatar = async (req, res, next) => {
 	try {
 		const { _id } = req.user
 		const { path: filePath, filename } = req.file
+
+		if (!req.file) {
+			throw HttpError(400, 'Avatar not uploaded')
+		}
 
 		const image = await Jimp.read(filePath)
 		image.resize(250, 250).write(filePath)
