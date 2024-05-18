@@ -5,7 +5,6 @@ import {
 	logout,
 	current,
 	updateSubscription,
-	// addAvatar,
 } from '../controllers/authControllers.js'
 import validateBody from '../helpers/validateBody.js'
 import validateId from '../helpers/validateId.js'
