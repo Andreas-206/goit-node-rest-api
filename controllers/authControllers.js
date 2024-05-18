@@ -103,11 +103,10 @@ export const updateSubscription = async (req, res, next) => {
 
 export const addAvatar = async (req, res, next) => {
 	try {
+		const { _id } = req.user
 		if (!req.file) {
 			throw HttpError(400, 'Avatar not uploaded')
 		}
-
-		const { _id } = req.user
 		const { path: filePath, filename } = req.file
 
 		const image = await Jimp.read(filePath)
