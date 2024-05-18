@@ -15,7 +15,7 @@ import {
 	updateSubscriptionSchema,
 } from '../schemas/usersSchemas.js'
 import authorization from '../middleware/authorization.js'
-// import upload from '../middleware/upload.js'
+import upload from '../middleware/upload.js'
 
 const authRouter = express.Router()
 
