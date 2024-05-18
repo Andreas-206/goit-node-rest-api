@@ -2,6 +2,9 @@ import User from '../models/user.js'
 import HttpError from '../helpers/HttpError.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import fs from 'node:fs/promises'
+import Jimp from 'jimp'
+import gravatar from 'gravatar'
 
 export const register = async (req, res, next) => {
 	try {
@@ -11,8 +14,13 @@ export const register = async (req, res, next) => {
 			throw HttpError(409, 'Email in use')
 		}
 
+		const avatarURL = gravatar.url(email)
 		const hashPassword = await bcrypt.hash(password, 10)
-		const newUser = await User.create({ ...req.body, password: hashPassword })
+		const newUser = await User.create({
+			...req.body,
+			password: hashPassword,
+			avatarURL,
+		})
 		res.status(201).json({
 			user: {
 				email: newUser.email,
