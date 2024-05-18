@@ -5,6 +5,7 @@ import {
 	logout,
 	current,
 	updateSubscription,
+	addAvatar,
 } from '../controllers/authControllers.js'
 import validateBody from '../helpers/validateBody.js'
 import validateId from '../helpers/validateId.js'
@@ -29,5 +30,6 @@ authRouter.patch(
 	validateBody(updateSubscriptionSchema),
 	updateSubscription
 )
+authRouter.patch('/avatars', authorization, upload.single('avatar'), addAvatar)
 
 export default authRouter
