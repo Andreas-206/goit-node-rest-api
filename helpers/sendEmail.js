@@ -1,7 +1,8 @@
 import nodemailer from 'nodemailer'
-import dotenv from 'dotenv/config'
 
-const transporter = nodemailer.createTransport({
+import 'dotenv/config'
+
+const transport = nodemailer.createTransport({
 	host: 'sandbox.smtp.mailtrap.io',
 	port: 2525,
 	auth: {
@@ -10,12 +11,8 @@ const transporter = nodemailer.createTransport({
 	},
 })
 
-// const message = {
-// 	to: 'kovandolek@gmail.com',
-// 	from: 'puma_real@ukr.net',
-// 	subject: 'Hello',
-// 	text: 'Hello World!',
-// 	html: '<p>Hello World!</p>',
-// }
+function sendMail(message) {
+	return transport.sendMail(message)
+}
 
-transporter.sendMail(message).then(console.log).catch(console.error)
+export default { sendMail }

@@ -1,5 +1,6 @@
 import User from '../models/user.js'
 import HttpError from '../helpers/HttpError.js'
+import mail from '../helpers/sendEmail.js'
 import bcrypt from 'bcrypt'
 import crypto from 'node:crypto'
 import jwt from 'jsonwebtoken'
@@ -17,11 +18,22 @@ export const register = async (req, res, next) => {
 
 		const avatarURL = gravatar.url(email)
 		const hashPassword = await bcrypt.hash(password, 10)
+		const verifyToken = crypto.randomUUID()
 		const newUser = await User.create({
 			...req.body,
 			password: hashPassword,
 			avatarURL,
+			verifyToken,
 		})
+
+		mail.sendMail({
+			to: email,
+			from: 'petro@gmail.com',
+			subject: 'Welcome to Phone book!',
+			html: `To confirm your email please click on the <a href="http://localhost:8080/users/verify/${verifyToken}">link</a>`,
+			text: `To confirm your email please open the link http://localhost:8080/users/verify/${verifyToken}`,
+		})
+
 		res.status(201).json({
 			user: {
 				email: newUser.email,
@@ -67,9 +79,9 @@ export const resendVerifyEmail = async (req, res, next) => {
 		const verifyEmail = {
 			to: email,
 			subject: 'Verify email',
-			html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${user.verificationCode}">Click verify email</a>`,
+			html: `<a target="_blank" href="http://localhost:8080/users/verify/${user.verificationCode}">Click verify email</a>`,
 		}
-		await sendEmail(verifyEmail)
+		await mail(verifyEmail)
 		res.json({ message: 'Verification email sent' })
 	} catch (error) {
 		next(error)
