@@ -1,6 +1,7 @@
 import User from '../models/user.js'
 import HttpError from '../helpers/HttpError.js'
 import bcrypt from 'bcrypt'
+import crypto from 'node:crypto'
 import jwt from 'jsonwebtoken'
 import fs from 'node:fs/promises'
 import Jimp from 'jimp'
@@ -51,6 +52,30 @@ export const verify = async (req, res, next) => {
 	}
 }
 
+export const resendVerifyEmail = async (req, res, next) => {
+	const { email } = req.body
+	try {
+		const user = await User.findOne({ email })
+		if (!user) {
+			throw HttpError(401, 'Email not found')
+		}
+
+		if (user.verify) {
+			throw HttpError(401, 'Email already verify')
+		}
+
+		const verifyEmail = {
+			to: email,
+			subject: 'Verify email',
+			html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${user.verificationCode}">Click verify email</a>`,
+		}
+		await sendEmail(verifyEmail)
+		res.json({ message: 'Verification email sent' })
+	} catch (error) {
+		next(error)
+	}
+}
+
 export const login = async (req, res, next) => {
 	try {
 		const { email, password } = req.body
@@ -60,6 +85,9 @@ export const login = async (req, res, next) => {
 			throw HttpError(401, 'Email or password is wrong')
 		}
 
+		if (!user.verify) {
+			throw HttpError(401, 'Email not verify')
+		}
 		const passwordCompare = await bcrypt.compare(password, user.password)
 
 		if (!passwordCompare) {

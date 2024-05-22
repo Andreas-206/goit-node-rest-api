@@ -18,3 +18,7 @@ export const updateSubscriptionSchema = Joi.object({
 		.only()
 		.required(),
 })
+
+export const emailSchema = Joi.object({
+	email: Joi.string().pattern(emailRegexp).trim().required(),
+})
