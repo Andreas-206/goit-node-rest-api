@@ -32,6 +32,25 @@ export const register = async (req, res, next) => {
 	}
 }
 
+export const verify = async (req, res, next) => {
+	const { token } = req.params
+	try {
+		const user = await User.findOneAndUpdate(
+			{ verifyToken: token },
+			{ verify: true, verifyToken: '' },
+			{ new: true }
+		)
+
+		if (!user) {
+			throw HttpError(404, 'User not found')
+		}
+
+		res.status(200).send({ message: 'Verification successful' })
+	} catch (error) {
+		next(error)
+	}
+}
+
 export const login = async (req, res, next) => {
 	try {
 		const { email, password } = req.body

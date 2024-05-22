@@ -6,6 +6,7 @@ import {
 	current,
 	updateSubscription,
 	addAvatar,
+	verify,
 } from '../controllers/authControllers.js'
 import validateBody from '../helpers/validateBody.js'
 import validateId from '../helpers/validateId.js'
@@ -31,5 +32,6 @@ authRouter.patch(
 	updateSubscription
 )
 authRouter.patch('/avatars', authorization, upload.single('avatar'), addAvatar)
+authRouter.get('/verify/:verificationToken', verify)
 
 export default authRouter

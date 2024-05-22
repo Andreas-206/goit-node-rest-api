@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import Joi from 'joi'
 
 const userSchema = new mongoose.Schema(
 	{
@@ -20,6 +19,14 @@ const userSchema = new mongoose.Schema(
 		token: {
 			type: String,
 			default: null,
+		},
+		verify: {
+			type: Boolean,
+			default: false,
+		},
+		verifyToken: {
+			type: String,
+			required: true,
 		},
 	},
 	{
