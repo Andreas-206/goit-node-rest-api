@@ -76,7 +76,7 @@ export const resendVerifyEmail = async (req, res, next) => {
 			html: `<a target="_blank" href="${BASE_URL}/users/verify/${user.verifyToken}">Click verify email</a>`,
 		}
 
-		await mail(verifyEmail)
+		await mail.sendMail(verifyEmail)
 		res.json({ message: 'Verification email sent' })
 	} catch (error) {
 		next(error)
