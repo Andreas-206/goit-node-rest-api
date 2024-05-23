@@ -28,13 +28,12 @@ export const register = async (req, res, next) => {
 			verifyToken,
 		})
 
-		mail.sendMail({
+		const verifyEmail = {
 			to: email,
-			from: 'petro@gmail.com',
-			subject: 'Welcome to Phone book!',
-			html: `To confirm your email please click on the <a href="${BASE_URL}/users/verify/${verifyToken}">link</a>`,
-			text: `To confirm your email please open the link http://localhost:8080/users/verify/${verifyToken}`,
-		})
+			subject: 'Verify email',
+			html: `<a target="_blank" href="${BASE_URL}/users/verify/${verifyToken}">Click verify email</a>`,
+		}
+		await mail.sendMail(verifyEmail)
 
 		res.status(201).json({
 			user: {
@@ -48,12 +47,12 @@ export const register = async (req, res, next) => {
 }
 
 export const verifyEmail =async(req, res)=>{
-  const {verificationCode} = req.params;
-  const user = await User.findOne({verificationCode})
+  const {token} = req.params;
+  const user = await User.findOne({token})
   if(!user) {
     throw HttpError(404, 'User not found');
   }
-  await User.findByIdAndUpdate(user._id, {verify: true, verificationCode:''})
+  await User.findByIdAndUpdate(user._id, {verify: true, verifyToken:''})
   res.status(200).json({
 		message: "Verification successfully",
 	});
@@ -74,8 +73,9 @@ export const resendVerifyEmail = async (req, res, next) => {
 		const verifyEmail = {
 			to: email,
 			subject: 'Verify email',
-			html: `<a target="_blank" href="http://localhost:8080/users/verify/${user.verificationCode}">Click verify email</a>`,
+			html: `<a target="_blank" href="${BASE_URL}/users/verify/${user.verifyToken}">Click verify email</a>`,
 		}
+
 		await mail(verifyEmail)
 		res.json({ message: 'Verification email sent' })
 	} catch (error) {
