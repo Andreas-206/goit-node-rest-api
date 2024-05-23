@@ -8,6 +8,8 @@ import fs from 'node:fs/promises'
 import Jimp from 'jimp'
 import gravatar from 'gravatar'
 
+const { JWT_SECRET, BASE_URL } = process.env
+
 export const register = async (req, res, next) => {
 	try {
 		const { email, password } = req.body
@@ -30,7 +32,7 @@ export const register = async (req, res, next) => {
 			to: email,
 			from: 'petro@gmail.com',
 			subject: 'Welcome to Phone book!',
-			html: `To confirm your email please click on the <a href="http://localhost:8080/users/verify/${verifyToken}">link</a>`,
+			html: `To confirm your email please click on the <a href="${BASE_URL}/users/verify/${verifyToken}">link</a>`,
 			text: `To confirm your email please open the link http://localhost:8080/users/verify/${verifyToken}`,
 		})
 
@@ -45,23 +47,16 @@ export const register = async (req, res, next) => {
 	}
 }
 
-export const verify = async (req, res, next) => {
-	const { token } = req.params
-	try {
-		const user = await User.findOneAndUpdate(
-			{ verifyToken: token },
-			{ verify: true, verifyToken: '' },
-			{ new: true }
-		)
-
-		if (!user) {
-			throw HttpError(404, 'User not found')
-		}
-
-		res.status(200).send({ message: 'Verification successful' })
-	} catch (error) {
-		next(error)
-	}
+export const verifyEmail =async(req, res)=>{
+  const {verificationCode} = req.params;
+  const user = await User.findOne({verificationCode})
+  if(!user) {
+    throw HttpError(404, 'User not found');
+  }
+  await User.findByIdAndUpdate(user._id, {verify: true, verificationCode:''})
+  res.status(200).json({
+		message: "Verification successfully",
+	});
 }
 
 export const resendVerifyEmail = async (req, res, next) => {
@@ -106,7 +101,7 @@ export const login = async (req, res, next) => {
 			throw HttpError(401, 'Email or password is wrong')
 		}
 
-		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+		const token = jwt.sign({ id: user._id }, JWT_SECRET, {
 			expiresIn: '23h',
 		})
 		await User.findByIdAndUpdate(user._id, { token })
