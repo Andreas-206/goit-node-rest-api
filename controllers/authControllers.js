@@ -49,7 +49,6 @@ export const register = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
   try {
     const { verificationToken } = req.params;
-		console.log(req.params);
     const user = await User.findOne({ verificationToken });
     if (!user) {
       return next(HttpError(404, "User not found"));
