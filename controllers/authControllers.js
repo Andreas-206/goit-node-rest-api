@@ -20,18 +20,18 @@ export const register = async (req, res, next) => {
 
 		const avatarURL = gravatar.url(email)
 		const hashPassword = await bcrypt.hash(password, 10)
-		const verifyToken = crypto.randomUUID()
+		const verificationToken = crypto.randomUUID()
 		const newUser = await User.create({
 			...req.body,
 			password: hashPassword,
 			avatarURL,
-			verifyToken,
+			verificationToken,
 		})
 
 		const verifyEmail = {
 			to: email,
 			subject: 'Verify email',
-			html: `<a target="_blank" href="${BASE_URL}/users/verify/${verifyToken}">Click verify email</a>`,
+			html: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">Click verify email</a>`,
 		}
 		await mail.sendMail(verifyEmail)
 
@@ -46,17 +46,26 @@ export const register = async (req, res, next) => {
 	}
 }
 
-export const verifyEmail =async(req, res)=>{
-  const {token} = req.params;
-  const user = await User.findOne({token})
-  if(!user) {
-    throw HttpError(404, 'User not found');
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
+		console.log(req.params);
+    const user = await User.findOne({ verificationToken });
+    if (!user) {
+      return next(HttpError(404, "User not found"));
+    }
+    await User.findByIdAndUpdate(user._id, {
+      verify: true,
+      verifyToken: null,
+    });
+
+    res.status(200).json({
+      message: "Verification successful",
+    });
+  } catch (error) {
+    next(error);
   }
-  await User.findByIdAndUpdate(user._id, {verify: true, verifyToken:''})
-  res.status(200).json({
-		message: "Verification successfully",
-	});
-}
+};
 
 export const resendVerifyEmail = async (req, res, next) => {
 	const { email } = req.body
@@ -73,7 +82,7 @@ export const resendVerifyEmail = async (req, res, next) => {
 		const verifyEmail = {
 			to: email,
 			subject: 'Verify email',
-			html: `<a target="_blank" href="${BASE_URL}/users/verify/${user.verifyToken}">Click verify email</a>`,
+			html: `<a target="_blank" href="${BASE_URL}/users/verify/${user.verificationToken}">Click verify email</a>`,
 		}
 
 		await mail.sendMail(verifyEmail)
